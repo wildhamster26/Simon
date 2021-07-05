@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./GamePage.css";
+import GameBoard from "./children/GameBoard/GameBoard";
 
 const GamePage = ({ name }) => {
   const [score, setScore] = useState(0);
@@ -9,7 +10,7 @@ const GamePage = ({ name }) => {
         <h2>Good luck, {name}!</h2>
         <h2>Score: {score}</h2>
       </div>
-      <div>game board placeholder</div>
+      <GameBoard setScore={setScore} />
     </>
   );
 };
