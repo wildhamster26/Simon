@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./GameBoard.css";
+import Lightbulb from "./children/Lightbulb/Lightbulb";
 
 const GameBoard = ({ setScore }) => {
   const [selected, setSelected] = useState(undefined);
+
+  const [pattern, setPattern] = useState([]);
 
   const colors = [
     { name: "yellow", hexcode: "#FDFD97" },
@@ -13,17 +16,22 @@ const GameBoard = ({ setScore }) => {
     { name: "blue", hexcode: "#9EC1CF" },
   ];
 
+  useEffect(() => {
+    setPattern((prev) => {
+      return [...prev, "yellow"];
+    });
+  }, []);
+
+  console.log("pattern is:", pattern);
   return (
     <>
       <div className="board">
         {colors.map((color) => (
-          <div
+          <Lightbulb
             key={color.name}
-            className="lightbulb"
-            style={{
-              backgroundColor: selected === color.name && color.hexcode,
-            }}
-            onClick={() => setSelected(color.name)}
+            color={color}
+            selected={selected}
+            setSelected={setSelected}
           />
         ))}
       </div>
