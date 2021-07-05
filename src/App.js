@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import WelcomePage from "./WelcomePage/WelcomePage";
+import GamePage from "./GamePage/GamePage";
 
 function App() {
   const [page, setPage] = useState("Welcome");
@@ -10,7 +11,7 @@ function App() {
       {page === "Welcome" ? (
         <WelcomePage name={name} setName={setName} setPage={setPage} />
       ) : (
-        <div />
+        <GamePage name={name} />
       )}
     </div>
   );

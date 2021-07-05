@@ -1,3 +1,9 @@
+html,
+body {
+  width: 100%;
+}
+
 .App {
+  width: 100%;
   text-align: center;
 }
