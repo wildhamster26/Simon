@@ -4,6 +4,8 @@ import Lightbulb from "./children/Lightbulb/Lightbulb";
 import getRandomColor from "./helpers/getRandomColor";
 
 const GameBoard = ({ setScore }) => {
+  // If I had more time I'd refactor this data set and the helper functions to their own files
+  // My apologies for the cluttered code
   const colors = useMemo(
     () => [
       { name: "yellow", hexcode: "#FDFD97" },
@@ -17,11 +19,18 @@ const GameBoard = ({ setScore }) => {
   );
 
   const [isGameActive, setIsGameActive] = useState(true);
-
   const [selected, setSelected] = useState(getRandomColor(colors).name);
-
   const [pattern, setPattern] = useState([selected]);
   const [playerAnswer, setPlayerAnswer] = useState([]);
+
+  const handleLightbulbClick = (colorName) => {
+    setSelected(colorName);
+    setPlayerAnswer((prev) => [...prev, colorName]);
+  };
+
+  const testPlayerAnswer = useCallback(() => {
+    return pattern.every((el, i) => el === playerAnswer[i]);
+  }, [pattern, playerAnswer]);
 
   const runSequence = useCallback(() => {
     let i = 0;
@@ -46,19 +55,10 @@ const GameBoard = ({ setScore }) => {
     };
   }, [runSequence]);
 
-  const handleLightbulbClick = (colorName) => {
-    setSelected(colorName);
-    setPlayerAnswer((prev) => [...prev, colorName]);
-  };
-
-  const testPlayerAnswer = useCallback(() => {
-    return pattern.every((el, i) => el === playerAnswer[i]);
-  }, [pattern, playerAnswer]);
-
   const endGame = useCallback(() => {
-    setPattern(null);
     setSelected(null);
-    setPlayerAnswer(null);
+    setPattern([]);
+    setPlayerAnswer([]);
     setIsGameActive(false);
   }, [setPattern, setPlayerAnswer, setSelected, setIsGameActive]);
 
