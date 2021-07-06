@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import "./GameBoard.css";
 import Lightbulb from "./children/Lightbulb/Lightbulb";
 import getRandomColor from "./helpers/getRandomColor";
 
 const GameBoard = ({ setScore }) => {
+  const [isGameActive, setIsGameActive] = useState(true);
+
   const [selected, setSelected] = useState(undefined);
 
   const [pattern, setPattern] = useState([]);
+  const [playerAnswer, setPlayerAnswer] = useState([]);
 
   const colors = useMemo(
     () => [
@@ -21,10 +24,45 @@ const GameBoard = ({ setScore }) => {
   );
 
   useEffect(() => {
-    setPattern((prev) => {
-      return [...prev, getRandomColor(colors)];
-    });
+    const colorNameToAdd = getRandomColor(colors).name;
+    setPattern((prev) => [...prev, colorNameToAdd]);
+    setSelected(colorNameToAdd);
+    const timeoutId = setTimeout(() => {
+      setSelected(null);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [colors]);
+
+  const handleLightbulbClick = (colorName) => {
+    setSelected(colorName);
+    setPlayerAnswer((prev) => [...prev, colorName]);
+  };
+
+  const testPlayerAnswer = useCallback(() => {
+    return pattern.every((el, i) => el === playerAnswer[i]);
+  }, [pattern, playerAnswer]);
+
+  const endGame = useCallback(() => {
+    setPattern(null);
+    setSelected(null);
+    setPlayerAnswer(null);
+    setIsGameActive(false);
+  }, [setPattern, setPlayerAnswer]);
+
+  const nextRound = useCallback(() => {
+    setScore((prev) => prev + 10);
+    // start next round
+  }, [setScore]);
+
+  useEffect(() => {
+    if (playerAnswer?.length > 0 && pattern.length === playerAnswer.length) {
+      const answerMatchPattern = testPlayerAnswer();
+      answerMatchPattern ? nextRound() : endGame();
+    }
+  }, [pattern, playerAnswer, nextRound, endGame, testPlayerAnswer]);
 
   // todo:
   // - display the colors from the pattern
@@ -33,7 +71,6 @@ const GameBoard = ({ setScore }) => {
   //    if correct, extend the pattern and do it again
   //    if wrong, game over
 
-  console.log("pattern is:", pattern);
   return (
     <>
       <div className="board">
@@ -42,9 +79,10 @@ const GameBoard = ({ setScore }) => {
             key={color.name}
             color={color}
             selected={selected}
-            setSelected={setSelected}
+            handleClick={handleLightbulbClick}
           />
         ))}
+        {!isGameActive && <button>Try again?</button>}
       </div>
     </>
   );

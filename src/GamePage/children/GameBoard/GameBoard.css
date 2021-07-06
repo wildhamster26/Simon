@@ -2,6 +2,11 @@
   display: flex;
   flex-direction: row;
   width: 50%;
+  max-width: 430px;
   flex-wrap: wrap;
+  margin: auto;
+}
+
+button {
   margin: auto;
 }
