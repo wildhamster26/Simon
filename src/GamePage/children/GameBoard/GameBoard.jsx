@@ -4,13 +4,6 @@ import Lightbulb from "./children/Lightbulb/Lightbulb";
 import getRandomColor from "./helpers/getRandomColor";
 
 const GameBoard = ({ setScore }) => {
-  const [isGameActive, setIsGameActive] = useState(true);
-
-  const [selected, setSelected] = useState(undefined);
-
-  const [pattern, setPattern] = useState([]);
-  const [playerAnswer, setPlayerAnswer] = useState([]);
-
   const colors = useMemo(
     () => [
       { name: "yellow", hexcode: "#FDFD97" },
@@ -23,18 +16,35 @@ const GameBoard = ({ setScore }) => {
     []
   );
 
-  useEffect(() => {
-    const colorNameToAdd = getRandomColor(colors).name;
-    setPattern((prev) => [...prev, colorNameToAdd]);
-    setSelected(colorNameToAdd);
-    const timeoutId = setTimeout(() => {
-      setSelected(null);
+  const [isGameActive, setIsGameActive] = useState(true);
+
+  const [selected, setSelected] = useState(getRandomColor(colors).name);
+
+  const [pattern, setPattern] = useState([selected]);
+  const [playerAnswer, setPlayerAnswer] = useState([]);
+
+  const runSequence = useCallback(() => {
+    let i = 0;
+    const intervalId = setInterval(() => {
+      if (pattern && pattern[i]) {
+        setSelected(pattern[i]);
+        i++;
+      } else {
+        setSelected(null);
+        clearInterval(intervalId);
+      }
     }, 1000);
 
+    return intervalId;
+  }, [pattern, setSelected]);
+
+  useEffect(() => {
+    const intervalId = runSequence();
+
     return () => {
-      clearTimeout(timeoutId);
+      clearInterval(intervalId);
     };
-  }, [colors]);
+  }, [runSequence]);
 
   const handleLightbulbClick = (colorName) => {
     setSelected(colorName);
@@ -52,17 +62,18 @@ const GameBoard = ({ setScore }) => {
     setIsGameActive(false);
   }, [setPattern, setPlayerAnswer]);
 
-  const nextRound = useCallback(() => {
+  const startNextRound = useCallback(() => {
     setScore((prev) => prev + 10);
-    // start next round
-  }, [setScore]);
+    // const colorNameToAdd = getRandomColor(colors).name;
+    // setPattern((prev) => [...prev, colorNameToAdd]);
+  }, [setScore, setPattern, colors]);
 
   useEffect(() => {
     if (playerAnswer?.length > 0 && pattern.length === playerAnswer.length) {
       const answerMatchPattern = testPlayerAnswer();
-      answerMatchPattern ? nextRound() : endGame();
+      answerMatchPattern ? startNextRound() : endGame();
     }
-  }, [pattern, playerAnswer, nextRound, endGame, testPlayerAnswer]);
+  }, [pattern, playerAnswer, startNextRound, endGame, testPlayerAnswer]);
 
   // todo:
   // - display the colors from the pattern
