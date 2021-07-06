@@ -60,12 +60,17 @@ const GameBoard = ({ setScore }) => {
     setSelected(null);
     setPlayerAnswer(null);
     setIsGameActive(false);
-  }, [setPattern, setPlayerAnswer]);
+  }, [setPattern, setPlayerAnswer, setSelected, setIsGameActive]);
 
   const startNextRound = useCallback(() => {
     setScore((prev) => prev + 10);
-    // const colorNameToAdd = getRandomColor(colors).name;
-    // setPattern((prev) => [...prev, colorNameToAdd]);
+    setSelected(null);
+    setPlayerAnswer([]);
+    const timeoutId = setTimeout(() => {
+      const colorNameToAdd = getRandomColor(colors).name;
+      setPattern((prev) => [...prev, colorNameToAdd]);
+      clearTimeout(timeoutId);
+    }, 1000);
   }, [setScore, setPattern, colors]);
 
   useEffect(() => {
@@ -74,13 +79,6 @@ const GameBoard = ({ setScore }) => {
       answerMatchPattern ? startNextRound() : endGame();
     }
   }, [pattern, playerAnswer, startNextRound, endGame, testPlayerAnswer]);
-
-  // todo:
-  // - display the colors from the pattern
-  // - register user's responses
-  // - test response to match pattern
-  //    if correct, extend the pattern and do it again
-  //    if wrong, game over
 
   return (
     <>
@@ -93,7 +91,12 @@ const GameBoard = ({ setScore }) => {
             handleClick={handleLightbulbClick}
           />
         ))}
-        {!isGameActive && <button>Try again?</button>}
+        {!isGameActive && (
+          <div className="game-over">
+            <p>Game over</p>
+            <button>Try again?</button>
+          </div>
+        )}
       </div>
     </>
   );
